@@ -133,17 +133,17 @@
     }
     ctx.stroke()
   }
-  updateInitialValues()
-  canvas.height = plotElem.clientWidth
-  canvas.width = plotElem.clientWidth
-  var u = new uPlot(opts, data, plotElem)
-  u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth });
-  window.addEventListener("resize", e => {
+
+  function updateCanvasProperties() {
     var ptr = window.devicePixelRatio | 1
     u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth });
     canvas.height = plotElem.clientWidth * ptr
     canvas.width = plotElem.clientWidth * ptr
-  })
+  }
+
+  updateInitialValues()
+  updateCanvasProperties()
+  window.addEventListener("resize", updateCanvasProperties)
   drawOde()
 
   const tmax = 40
