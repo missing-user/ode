@@ -134,6 +134,9 @@
     ctx.stroke()
   }
 
+  updateInitialValues()
+  var u = new uPlot(opts, data, plotElem)
+
   function updateCanvasProperties() {
     var ptr = window.devicePixelRatio | 1
     u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth });
@@ -141,7 +144,6 @@
     canvas.width = plotElem.clientWidth * ptr
   }
 
-  updateInitialValues()
   updateCanvasProperties()
   window.addEventListener("resize", updateCanvasProperties)
   drawOde()
