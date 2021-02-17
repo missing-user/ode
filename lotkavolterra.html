@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <title>Lotka Volterra</title>
+  <meta name="description" content="Numerical solutions of the Lotka Volterra population model in JavaScript">
+  <link rel="stylesheet" href="css/ode.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600&display=swap">
+  <link rel="preload" href="css/uplot.min.css" as="style">
+  <link rel="preload" href="scripts/ode.js" as="script">
+  <link rel="preload" href="scripts/uplot.min.js" as="script">
+</head>
+
+<body>
+  <h1>Lotka Volterra</h1>
+  <p>
+    The Lotka Volterra equations are a pair of first order differential equations that model predator prey populations.
+  </p>
+  <object style="width: 100%; max-height: 6.7em;" data="images/lotkavolt.svg" type="image/svg+xml"></object>
+  <p>
+    The parameters describe natural birth and deathrates of both species. If you want to learn more, here's the
+    <a href="https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations">wikipedia article</a>.
+  </p>
+
+  <div style="display: flex; justify-content: space-between;">
+    <div class="sliderscont">
+      <input type="range" oninput="updateSim()" value="1.5" min="0.1" max="5" step="any" name="resolution slider"
+        id="alphaSlid">
+      <label for="alphaSlid">birth rate prey</label>
+      <input type="range" oninput="updateSim()" value="1" min="0.1" max="5" step="any" name="resolution slider"
+        id="betaSlid">
+      <label for="betaSlid">death rate prey</label>
+    </div>
+
+    <div class="sliderscont">
+      <input type="range" oninput="updateSim()" value="3" min="0.1" max="5" step="any" name="resolution slider"
+        id="deltaSlid">
+      <label for="deltaSlid">birth rate predator</label>
+      <input type="range" oninput="updateSim()" value="2" min="0.1" max="5" step="any" name="resolution slider"
+        id="gammaSlid">
+      <label for="gammaSlid">death rate predator</label>
+    </div>
+  </div>
+
+  <div id="plot"></div>
+</body>
+<link rel="stylesheet" href="css/uplot.min.css">
+<script src="scripts/uplot.min.js"></script>
+<script src="scripts/ode.js"></script>
+<script>
+  var plotElem = document.getElementById("plot")
+
+  function getSliderValue(id) {
+    return parseFloat(document.getElementById(id).value)
+  }
+
+  var LotkaVolterraVAR = (t, y) => {
+    var alpha = getSliderValue("alphaSlid")
+    var beta = getSliderValue("betaSlid")
+    var delta = getSliderValue("deltaSlid")
+    var gamma = getSliderValue("gammaSlid")
+    return [alpha * y[0] - beta * y[0] * y[1], delta * y[0] * y[1] - gamma * y[1]]
+  }
+
+  var solver = new ODEsolver(LotkaVolterraVAR, [1, 2], 0, 20)
+  function calcOde(resolution) {
+    const eres = solver.rk4(~~resolution)
+    data = [
+      eres.ts,
+      eres.ys.map((t) => t[0]),
+      eres.ys.map((t) => t[1]),
+    ]
+    return data
+  }
+
+  function updateSim() {
+    u.setData(calcOde(2000))
+  }
+
+  const opts = {
+    width: 900,
+    height: 900,
+    title: "Lotka Volterra population model",
+    scales: {
+      x: { time: false },
+    },
+    series: [
+      { label: "t" },
+      {
+        label: "Prey",
+        stroke: "#D32F2F",
+      },
+      {
+        label: "Predator",
+        stroke: "#12B02F",
+      },
+    ],
+  }
+
+  var u = new uPlot(opts, calcOde(100), plotElem)
+  u.setData(calcOde(1000))
+  u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth });
+  window.addEventListener("resize", e => {
+    u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth });
+  })
+</script>
+<script>var cfla = document.createElement('script'); cfla.defer = true; cfla.src = 'https://static.cloudflareinsights.com/beacon.min.js'; cfla.setAttribute("data-cf-beacon", '{"token": "f9f51233f11041a194c4d5f4511d8282"}'); if (!window.localStorage || !window.localStorage.getItem("devmode")) document.body.appendChild(cfla)</script>
+
+
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <title>Airy function</title>
+  <meta name="description" content="Numerical solutions of the Airy function in JavaScript">
+  <link rel="stylesheet" href="css/ode.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600&display=swap">
+  <link rel="preload" href="css/uplot.min.css" as="style">
+  <link rel="preload" href="scripts/ode.js" as="script">
+  <link rel="preload" href="scripts/uplot.min.js" as="script">
+</head>
+
+<body>
+  <h1>Airy function</h1>
+  <p>
+    The <a href="https://en.wikipedia.org/wiki/Airy_function">Airy</a> functions are solutions to the linear
+    differential
+    equation
+  </p>
+  <object style="width: 100%; max-height: 1.8em;" data="images/airy.svg" type="image/svg+xml"></object>
+  <p>
+    The airy functions are among other things solutions to the time independent Schrödinger equation for a particle
+    inside a
+    linear and triangular potential well. The Airy functions can't easily be described in terms of standard mathematical
+    functions, which makes numerical solutions especially interesting. The two parameters describe the initial
+    conditions of
+    the system.
+  </p>
+
+  <div class="sliderscont">
+    <input type="range" oninput="updateSim()" min="6" max="16" value="11" name="resolution slider" id="alphaSlid">
+    <label for="alphaSlid">resolution</label>
+    <input type="range" oninput="updateInitialValues()" value="0.7" min="0" max="1" step="any" name="param one"
+      id="betaSlid">
+    <label for="betaSlid">initial value</label>
+    <input type="range" oninput="updateInitialValues()" value="0.701923076923" min="0" max="1" step="any"
+      name="param one" id="gammaSlid">
+    <label for="gammaSlid">initial derivative</label>
+  </div>
+
+  <div id="plot"></div>
+</body>
+<link rel="stylesheet" href="css/uplot.min.css">
+<script src="scripts/uplot.min.js"></script>
+<script src="scripts/ode.js"></script>
+<script>
+  var plotElem = document.getElementById("plot")
+  var Airy = (t, y) => [y[1], t * y[0]]
+  var solver = new ODEsolver(Airy, [0.7, 0.701923076923077], -15, 6)
+
+  function getSliderValue(id) {
+    return parseFloat(document.getElementById(id).value)
+  }
+
+  function updateInitialValues() {
+    solver.y0[0] = getSliderValue("betaSlid")
+    solver.y0[1] = getSliderValue("gammaSlid")
+    updateSim()
+  }
+
+  function updateSim() {
+    u.setData(calcOde(Math.pow(2, document.getElementById("alphaSlid").value)))
+  }
+
+  const opts = {
+    width: 900,
+    height: 900,
+    title: "Airy function",
+    scales: {
+      x: { time: false },
+      y: {
+        auto: false,
+        range: [-5, 5],
+      },
+    },
+    series: [
+      { label: "t" },
+      {
+        label: "Euler",
+        stroke: "#D32F2F",
+      },
+      {
+        label: "Midpoint",
+        stroke: "#ff8000",
+      },
+      {
+        label: "RK4",
+        stroke: "#12B02F",
+      },
+    ],
+  }
+
+  function calcOde(resolution) {
+    const eres = solver.euler(~~resolution)
+    data = [
+      eres.ts,
+      eres.ys.map((t) => t[0]),
+      solver.midpoint(~~resolution).ys.map((t) => t[0]),
+      solver.rk4(~~resolution).ys.map((t) => t[0]),
+    ]
+    return data
+  }
+
+  var u = new uPlot(opts, calcOde(2 ** 11), plotElem)
+  u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth })
+  window.addEventListener("resize", e => {
+    u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth })
+  })
+</script>
+<script>var cfla = document.createElement('script'); cfla.defer = true; cfla.src = 'https://static.cloudflareinsights.com/beacon.min.js'; cfla.setAttribute("data-cf-beacon", '{"token": "f9f51233f11041a194c4d5f4511d8282"}'); if (!window.localStorage || !window.localStorage.getItem("devmode")) document.body.appendChild(cfla)</script>
+
+
+</html>

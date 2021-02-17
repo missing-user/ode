@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <title>Numerical Integration - Solving ODEs in JS</title>
+  <meta name="description" content="Solve ODEs using JavaScript and the Runge Kutta Method">
+  <meta property="og:image" content="https://jurasic-park.de/images/ode.png">
+  <meta property="og:type" content="blog" />
+
+  <link rel="stylesheet" href="css/ode.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600&display=swap">
+  <link rel="preload" href="css/uplot.min.css" as="style">
+  <link rel="preload" href="scripts/ode.js" as="script">
+  <link rel="preload" href="scripts/uplot.min.js" as="script">
+  <link rel="preload" href="css/prism.css" as="style">
+  <link rel="preload" href="scripts/prism.js" as="script">
+</head>
+
+<body>
+  <h1>Numerical solutions to Ordinary differential equations</h1>
+  <h2>Basics</h2>
+  <p>
+    Ordinary differential equations, are equations that involve ordinary derivatives of a function and the function
+    itself. The order of the differential equation is characterized by the highest order derivative it contains. ODEs
+    are used to model a variety of systems like the stock market, orbiting planets or predator prey systems. In this
+    article, we will explore a few numerical methods for solving the following first order equation in JavaScript.
+  </p>
+  <object style="width: 100%; max-height: 3.2em;" data="images/ode.svg" type="image/svg+xml"></object>
+  <h2>Numerical methods</h2>
+  <p>
+    Since many differential equations are hard to solve mathematically, numerical methods have been developed to compute
+    aproximate solutions.
+  </p>
+  <h3>Euler integration</h3>
+  <p>
+    The simplest method for numerical integration. At each timestep we calculate the current derivative, multiply it by
+    the timestep to get the change in y direction and add it to the previous y value to get the next state.
+    <!-- y_{n+1} = y_n + h \cdot f(t,y_n) -->
+  </p>
+  <object style="width: 100%; max-height: 1.6em;" data="images/eulerStep.svg" type="image/svg+xml"></object>
+  <p>
+    In the following JS implementation of the euler method <b>ts</b> is an array with of
+    linearly spaced values ranging from the initial time <b>t_0</b> to the end time <b>t_1</b>. To store the resulting
+    values, we create an empty array <b>ys</b> and initialize the first entry to the initial ODE contition <b>y_0</b>.
+  </p>
+  <pre><code  class="language-javascript"  contenteditable spellcheck="false">const N = 100, t_0 = 0, t_1 = 1, y_0 = 2
+const h = (t_1 - t_0) / (N)  //step size
+var ts = Array.from(Array(N+1), (_, k) => k * h + t_0)
+var ys = Array(N+1).fill(0)  //results
+ys[0] = y_0  //initial conditions
+
+for (let i = 0; i &lt; N; i++) {
+  ys[i + 1] =  ys[i] + f(ts[i], ys[i]) * h
+}</code></pre>
+  <p>
+    The biggest drawback of the Euler method is, that the error scales with O(h&sup2;) and therefore oftentimes isn't
+    stable. One example of this behaviour can be seen <a href="oscillator">here</a> when the resolution is decreased.
+  </p>
+  <h3>Midpoint method</h3>
+  <p>
+    The <a href="https://en.wikipedia.org/wiki/Midpoint_method">midpoint method</a> improves uppon the Euler method, by
+    taking the "average slope" between the current location and the next one, instead of the slope at the current
+    location. As the name suggests, it determines the derivative at the midpoint between two steps. To do this, a
+    regular euler iteration with half step size is performed, and used to evaluate the slope. The next y value is once
+    again calculated by moving along the slope by one step.
+  </p>
+  <object style="width: 100%; max-height: 6em;" data="images/midpointStep.svg" type="image/svg+xml"></object>
+  <p>Using this, the Order of the error decreases to O(h&sup3;) per step and O(h&sup2;)
+    for the total solution. The midpoint method increases stability significantly, while only requiring two evaluations
+    of
+    the ODE per step. In realtime applications, this is often a good balance between accuracy and performance. Here's
+    how
+    it looks when implemented:
+  </p>
+  <pre><code class="language-javascript" contenteditable spellcheck="false">for (let i = 0; i &lt; resolution; i++) {
+  const k1 = f(ts[i], ys[i])
+  const k2 = f(ts[i] + h/2, ys[i] + k1 * h/2)
+  ys[i + 1] = ys[i] + k2 * h
+}</code></pre>
+  <h3>Runge Kutta 4th Order </h3>
+  <p>
+    The <a href="https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods">Runge Kutta family</a> of methods takes the
+    concept further, by introducing n evaluations, each more accurate than the previous one, to compute the step. For
+    the vast majority of applications, the fourth order method, also called the standard Runge Kutta Method or RK4, is
+    accurate enough. Even at large step sizes it retains a high stability, since the error per step only scales with
+    O(h^5)
+  </p>
+  <object style="width: 100%; max-height: 9em;" data="images/rk4.svg" type="image/svg+xml"></object>
+  <p>
+    A simple JS implementation for the rk4 method is
+  </p>
+  <pre><code class="language-javascript" contenteditable spellcheck="false">for (let i = 0; i &lt; resolution; i++) {
+  const k1 = f(ts[i], ys[i])
+
+  const s1 = ys[i] + k1 * h/2
+  const k2 = f(ts[i] + h/2, s1)
+
+  const s2 = ys[i] + k2 * h/2
+  const k3 = f(ts[i] + h/2, s2) 
+
+  const s3 = ys[i] + k2 * h
+  const k4 = f(ts[i] + h, s3) // f(t + h, y_n + k3*h)
+  ys[i + 1] = ys[i] + (k1/6 + k2/3 + k3/3 + k4/6) * h
+}</code></pre>
+  <hr>
+  <p>The demo below compares the accuracy of all three methods:
+  </p>
+  <label for="resolution_rng">resolution</label>
+  <input type="range" oninput="u.setData(calcOde(Math.pow(2,this.value)))" min="2" max="16" name="resolution slider"
+    id="resolution_rng">
+  <div id="plot"></div>
+
+  <h2>Moving into higher orders</h2>
+  <p>Until now, we have only looked at solving first order differential equations. To solve higher order ODEs like
+    the <a href="https://en.wikipedia.org/wiki/Electromagnetic_wave_equation">wave equation</a> we first have to turn
+    it into a system of first order ODEs. As an example, let's look at harmonic oscillators.
+  </p>
+  <object style="width: 100%; max-height: 1.8em;" data="images/oszi.svg" type="image/svg+xml"></object>
+  <p>
+    To turn this into a system of first order ODEs, let's write the second order derivative <b>y''</b> as a derivative
+    of <b>y'</b>. Now we can represent <b>y</b> as a vector consisting of the value and it's first derivative like so
+  </p>
+  <object style="width: 100%; max-height: 3.2em;" data="images/firstorder.svg" type="image/svg+xml"></object>
+  <p>
+    This reqires some changes in the implementation, since <b>y</b> isn't a number anymore, but rather a list of values.
+    To see one possible implementation, either inspect the site or take a look at my
+    <a href="https://github.com/missing-user/missing-user.github.io">GitHub repository</a> for all the demos. There's a
+    bunch of other improvements that could be done, like moving from a fixed resolution to an adaptive step size, like I
+    did <a href="https://missing-user.github.io/solarSystem">here</a> or implementing a
+    <a href="https://en.wikipedia.org/wiki/Linear_multistep_method#Adams%E2%80%93Bashforth_methods">multistep
+      method</a>, that takes more than one previous point into consideration for the calculation.
+  </p>
+  <h2>...and beyond</h2>
+  <p>Using these methods, you can now solve a variety of problems from physics, mathematics and even biology. Here's a
+    list of problems I find particularly interesting and an interactive implementation to go along with each one. If you
+    enjoy these kinds of projects, why don't you check out <a href="https://jurasic-park.de/">my website</a></p>
+  <ul>
+    <li><a href="oscillator">Harmonic oscillators</a></li>
+    <li><a href="airy">Airy functions</a></li>
+    <li><a href="lotkavolterra">Lotka Volterra equations</a></li>
+    <li><a href="lorenz">Lorenz Attractors</a></li>
+  </ul>
+</body>
+<link href="css/prism.css" rel="stylesheet" type="text/css" />
+<script src="scripts/prism.js" type="text/javascript"></script>
+<link rel="stylesheet" href="css/uplot.min.css">
+<script src="scripts/uplot.min.js"></script>
+<script src="scripts/ode.js"></script>
+<script>
+  var plotElem = document.getElementById("plot")
+  const DefaultODE = {
+    f: (t, y) => [2 * Math.sin(3 * t) + y[0] / 4],
+    parameters: [[0.2], 0, 8]
+  }
+  var solver = new ODEsolver(DefaultODE.f, ...DefaultODE.parameters)
+
+  const opts = {
+    width: 900,
+    height: 900,
+    title: "Numerical ODE Solution",
+    scales: {
+      x: { time: false },
+      y: { range: [0, 7] }
+    },
+    series: [
+      { label: "t" },
+      {
+        label: "Euler",
+        stroke: "#D32F2F",
+      },
+      {
+        label: "Midpoint",
+        stroke: "#ff8000",
+      },
+      {
+        label: "RK4",
+        stroke: "#12B02F",
+      },
+    ],
+  }
+
+  function calcOde(resolution) {
+    const eres = solver.euler(~~resolution)
+    data = [
+      eres.ts,
+      eres.ys.map((t) => t[0]),
+      solver.midpoint(~~resolution).ys.map((t) => t[0]),
+      solver.rk4(~~resolution).ys.map((t) => t[0]),
+    ]
+    return data
+  }
+
+  var u = new uPlot(opts, calcOde(100), plotElem)
+  u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth });
+  window.addEventListener("resize", e => {
+    u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth });
+  })
+</script>
+<script>var cfla = document.createElement('script'); cfla.defer = true; cfla.src = 'https://static.cloudflareinsights.com/beacon.min.js'; cfla.setAttribute("data-cf-beacon", '{"token": "f9f51233f11041a194c4d5f4511d8282"}'); if (!window.localStorage || !window.localStorage.getItem("devmode")) document.body.appendChild(cfla)</script>
+
+
+</html>

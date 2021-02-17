@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <title>Oscillators</title>
+  <meta name="description" content="Numerical simulations of Oscillator in JavaScript">
+  <link rel="stylesheet" href="css/ode.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600&display=swap">
+  <link rel="preload" href="css/uplot.min.css" as="style">
+  <link rel="preload" href="scripts/ode.js" as="script">
+  <link rel="preload" href="scripts/uplot.min.js" as="script">
+</head>
+
+<body>
+  <h1>Oscillators</h1>
+  <p>
+    Harmonic oscillators are used to describe a variety of systems in physics, like pendulums, electronic circuits and
+    even <a href="https://en.wikipedia.org/wiki/Quantum_harmonic_oscillator">quantum particles</a> in a potential well.
+    The underlying equation is the following second order ODE
+  </p>
+  <object style="width: 100%; max-height: 1.8em;" data="images/oszi.svg" type="image/svg+xml"></object>
+  <p>
+    The parameter gamma is an optional dampening factor. In the demo Below, different numerical methods are used to
+    solve this popular differential equation. As you can see, the simpler methods diverge quickly and only produce
+    accurate results when the simulation step size is significantly smaller than the oszillation frequency, while the
+    higher order Runge Kutta Method produces useful results, even at a low resolution. <br>
+    If you want to know more about how these methods work, I've written an interactive article <a href="ode">here</a>.
+  </p>
+
+  <div style="display: flex; justify-content: space-between;">
+    <div class="sliderscont">
+      <input type="range" oninput="updateSim()" min="3" max="14" value="8" name="resolution slider" id="alphaSlid">
+      <label for="alphaSlid">resolution</label>
+      <input type="range" oninput="updateInitialValues()" value="2" min="-10" max="10" step="any" name="amplitude"
+        id="betaSlid">
+      <label for="betaSlid">initial amplitude</label>
+    </div>
+
+    <div class="sliderscont">
+      <input type="range" oninput="updateInitialValues()" value="5" min="0.1" max="10" step="any"
+        name="resonance slider" id="deltaSlid">
+      <label for="deltaSlid">resonance frequency</label>
+      <input type="range" oninput="updateInitialValues()" value="0.1" min="0" max="1" step="any" name="dampening slider"
+        id="gammaSlid">
+      <label for="gammaSlid">dampening</label>
+    </div>
+  </div>
+
+  <div id="plot"></div>
+</body>
+<link rel="stylesheet" href="css/uplot.min.css">
+<script src="scripts/uplot.min.js"></script>
+<script src="scripts/ode.js"></script>
+<script>
+  var plotElem = document.getElementById("plot")
+  var dampening = 0.1
+  var resonance = 5
+
+
+  function getSliderValue(id) {
+    return parseFloat(document.getElementById(id).value)
+  }
+
+  var Oscillator = (t, y) => {
+    dampening = getSliderValue("gammaSlid")
+    resonance = getSliderValue("deltaSlid")
+    return [y[1], -resonance * y[0] - y[1] * dampening]
+  }
+  var solver = new ODEsolver(Oscillator, [2, 0], 0, 20)
+
+  function updateInitialValues() {
+    solver.y0[0] = getSliderValue("betaSlid")
+    updateSim()
+  }
+
+  function updateSim() {
+    u.setData(calcOde(Math.pow(2, document.getElementById("alphaSlid").value)))
+  }
+
+  const opts = {
+    width: 900,
+    height: 900,
+    title: "Oscillator",
+    scales: {
+      x: { time: false },
+      y: { range: [-10, 10] }
+    },
+    series: [
+      { label: "t" },
+      {
+        label: "Euler",
+        stroke: "#D32F2F",
+      },
+      {
+        label: "Midpoint",
+        stroke: "#ff8000",
+      },
+      {
+        label: "RK4",
+        stroke: "#12B02F",
+      },
+    ],
+  }
+
+  function calcOde(resolution) {
+    const eres = solver.euler(~~resolution)
+    data = [
+      eres.ts,
+      eres.ys.map((t) => t[0]),
+      solver.midpoint(~~resolution).ys.map((t) => t[0]),
+      solver.rk4(~~resolution).ys.map((t) => t[0]),
+    ]
+    return data
+  }
+
+  var u = new uPlot(opts, calcOde(2 ** 8), plotElem)
+  u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth })
+  window.addEventListener("resize", e => {
+    u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth })
+  })
+</script>
+<script>var cfla = document.createElement('script'); cfla.defer = true; cfla.src = 'https://static.cloudflareinsights.com/beacon.min.js'; cfla.setAttribute("data-cf-beacon", '{"token": "f9f51233f11041a194c4d5f4511d8282"}'); if (!window.localStorage || !window.localStorage.getItem("devmode")) document.body.appendChild(cfla)</script>
+
+
+</html>

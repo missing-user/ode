@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <title>Lorenz Attractor</title>
+  <meta name="description" content="Numerical simulations of a Lorenz Attractor in JavaScript">
+  <link rel="stylesheet" href="css/ode.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600&display=swap">
+  <link rel="preload" href="css/uplot.min.css" as="style">
+  <link rel="preload" href="scripts/ode.js" as="script">
+  <link rel="preload" href="scripts/uplot.min.js" as="script">
+</head>
+
+<body>
+  <h1>Lorenz Attractor</h1>
+  <p>This is a <a href="https://en.wikipedia.org/wiki/Lorenz_system">Lorenz strange attractor</a>
+    It is notable for having chaotic solutions for certain initial conditions.
+  </p>
+  <object style="width: 100%; max-height: 10em;" data="images/lorenz.svg" type="image/svg+xml"></object>
+  <p>
+    The lorenz system was developed to
+    describe a two dimensional fluid layer that is being warmed from below and cooled from above. <b>x</b>
+    is proportional to the rate of convection, <b>y</b> to the horizontal temperature variation, and
+    <b>z</b> to the vertical temperature variation. This demo shows a xy projection of the result and all three
+    coordinates in the time plot below.
+  </p>
+
+  <div style="display: flex; justify-content: space-between;">
+    <div class="sliderscont">
+      <input type="range" oninput="updateInitialValues()" min="1" max="4" value="3" step="0.1" name="resolution slider"
+        id="resSlid">
+      <label for="resSlid">resolution</label>
+      <input type="range" oninput="updateInitialValues()" value="8 / 3" min="0" max="3" step="any" name="amplitude"
+        id="betaSlid">
+      <label for="betaSlid">beta</label>
+    </div>
+
+    <div class="sliderscont">
+      <input type="range" oninput="updateInitialValues()" value="5" min="0.1" max="10" step="any"
+        name="resonance slider" id="deltaSlid">
+      <label for="deltaSlid">delta</label>
+      <input type="range" oninput="updateInitialValues()" value="1" min="-20" max="20" step="any"
+        name="dampening slider" id="gammaSlid">
+      <label for="gammaSlid">initial position</label>
+    </div>
+  </div>
+
+  <canvas style="width: 100%;" id="canvas"></canvas>
+  <div id="plot"></div>
+</body>
+<link rel="stylesheet" href="css/uplot.min.css">
+<script src="scripts/uplot.min.js"></script>
+<script src="scripts/ode.js"></script>
+<script>
+  var plotElem = document.getElementById("plot")
+  var delta = 10
+  var beta = 8 / 3
+  var radius = 28
+  var iterPerFrame = 4
+
+  var oderes = []
+  function LorenzODE(t, y) {
+    return [-delta * (y[0] - y[1]), radius * y[0] - y[1] - y[0] * y[2], -beta * y[2] + y[0] * y[1]]
+  }
+  solver = new ODEsolver(LorenzODE, [0, 1, 0.5], 0, 20)
+
+  function getSliderValue(id) {
+    return parseFloat(document.getElementById(id).value)
+  }
+
+  function updateInitialValues() {
+    solver.y0 = [getSliderValue("gammaSlid"), 1, 0.5]
+    beta = getSliderValue("betaSlid")
+    delta = getSliderValue("deltaSlid")
+    solver.f = (t, y) => [-delta * (y[0] - y[1]), radius * y[0] - y[1] - y[0] * y[2], -beta * y[2] + y[0] * y[1]]
+    iterPerFrame = Math.pow(2, getSliderValue("resSlid"))
+    solver.t0 = 0
+    solver.t1 = 20
+    oderes = solver.rk4(~~iterPerFrame * 120) //calculate a 20s preview at high res 
+  }
+
+  const opts = {
+    width: 900,
+    height: 900,
+    title: "Lorenz attractor",
+    scales: {
+      x: { time: false },
+    },
+    series: [
+      { label: "t" },
+      {
+        label: "x",
+        stroke: "#D32F2F",
+      },
+      {
+        label: "y",
+        stroke: "#ff8000",
+      },
+      {
+        label: "z",
+        stroke: "#12B02F",
+      },
+    ],
+  }
+
+  var canvas = document.getElementById("canvas")
+  var ctx = canvas.getContext("2d")
+  const map = (value, x1, y1, x2, y2) => (value - x1) * (y2 - x2) / (y1 - x1) + x2;
+
+  var data = []
+  function drawOde() {
+    data = [
+      oderes.ts,
+      oderes.ys.map((t) => t[0]),
+      oderes.ys.map((t) => t[1]),
+      oderes.ys.map((t) => t[2]),
+    ]
+
+    xmin = Math.min(...data[1])
+    xmax = Math.max(...data[1])
+    ymin = Math.min(...data[2])
+    ymax = Math.max(...data[2])
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.beginPath()
+    for (let i = 0; i < data[1].length; i++) {
+      const x = data[1][i]
+      ctx.lineTo(
+        map(x, xmin, xmax, 0, canvas.width),
+        map(data[2][i], ymin, ymax, 0, canvas.height))
+    }
+    ctx.stroke()
+  }
+  updateInitialValues()
+  canvas.height = plotElem.clientWidth
+  canvas.width = plotElem.clientWidth
+  var u = new uPlot(opts, data, plotElem)
+  u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth });
+  window.addEventListener("resize", e => {
+    var ptr = window.devicePixelRatio | 1
+    u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth });
+    canvas.height = plotElem.clientWidth * ptr
+    canvas.width = plotElem.clientWidth * ptr
+  })
+  drawOde()
+
+  const tmax = 40
+  const tstep = 0.1
+  function step(timestamp) {
+    solver.y0 = oderes.ys[oderes.ys.length - 1]
+    solver.t0 = solver.t1
+    solver.t1 += tstep
+    // append the results to the current results 
+    var tmpres = solver.rk4(~~iterPerFrame)
+    oderes.ts = oderes.ts.concat(tmpres.ts)
+    oderes.ys = oderes.ys.concat(tmpres.ys)
+
+    //remove the first few elements if the array is too long
+    if (oderes.ts[oderes.ts.length - 1] - oderes.ts[0] > tmax) {
+      oderes.ts.splice(0, tmpres.ts.length)
+      oderes.ys.splice(0, tmpres.ts.length)
+    }
+    drawOde()
+    u.setData(data)
+    window.requestAnimationFrame(step)
+  }
+
+  window.requestAnimationFrame(step)
+</script>
+<script>var cfla = document.createElement('script'); cfla.defer = true; cfla.src = 'https://static.cloudflareinsights.com/beacon.min.js'; cfla.setAttribute("data-cf-beacon", '{"token": "f9f51233f11041a194c4d5f4511d8282"}'); if (!window.localStorage || !window.localStorage.getItem("devmode")) document.body.appendChild(cfla)</script>
+
+</html>
