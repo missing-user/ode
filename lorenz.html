@@ -119,17 +119,19 @@
       oderes.ys.map((t) => t[2]),
     ]
 
-    xmin = Math.min(...data[1])
-    xmax = Math.max(...data[1])
-    ymin = Math.min(...data[2])
-    ymax = Math.max(...data[2])
+    const xmin = Math.min(...data[1])
+    const xmax = Math.max(...data[1])
+    const ymin = Math.min(...data[2])
+    const ymax = Math.max(...data[2])
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.beginPath()
-    for (let i = 0; i < data[1].length; i++) {
-      const x = data[1][i]
-      ctx.lineTo(
-        map(x, xmin, xmax, 0, canvas.width),
-        map(data[2][i], ymin, ymax, 0, canvas.height))
+    ctx.moveTo(
+        map(data[1][0], xmin, xmax, 0, canvas.width),
+        map(data[2][0], ymin, ymax, 0, canvas.height))
+    for (let i = 1; i < data[1].length; i++) {
+      const x = map(data[1][i], xmin, xmax, 0, canvas.width)
+      const y = map(data[2][i], ymin, ymax, 0, canvas.height)
+      ctx.lineTo(x,y)
     }
     ctx.stroke()
   }
