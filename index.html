@@ -34,7 +34,7 @@
     Since many differential equations are hard to solve mathematically, numerical methods have been developed to compute
     aproximate solutions.
   </p>
-  <h3>Euler integration</h3>
+  <h3 id="euler">Euler integration</h3>
   <p>
     The simplest method for numerical integration. At each timestep we calculate the current derivative, multiply it by
     the timestep to get the change in y direction and add it to the previous y value to get the next state.
@@ -59,7 +59,7 @@ for (let i = 0; i &lt; N; i++) {
     The biggest drawback of the Euler method is, that the error scales with O(h&sup2;) and therefore oftentimes isn't
     stable. One example of this behaviour can be seen <a href="oscillator">here</a> when the resolution is decreased.
   </p>
-  <h3>Midpoint method</h3>
+  <h3 id="midpoint">Midpoint method</h3>
   <p>
     The <a href="https://en.wikipedia.org/wiki/Midpoint_method">midpoint method</a> improves uppon the Euler method, by
     taking the "average slope" between the current location and the next one, instead of the slope at the current
@@ -80,7 +80,7 @@ for (let i = 0; i &lt; N; i++) {
   const k2 = f(ts[i] + h/2, ys[i] + k1 * h/2)
   ys[i + 1] = ys[i] + k2 * h
 }</code></pre>
-  <h3>Runge Kutta 4th Order </h3>
+  <h3 id="rk4">Runge Kutta 4th Order </h3>
   <p>
     The <a href="https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods">Runge Kutta family</a> of methods takes the
     concept further, by introducing n evaluations, each more accurate than the previous one, to compute the step. For
