@@ -19,7 +19,8 @@
   <p>This is a <a href="https://en.wikipedia.org/wiki/Lorenz_system">Lorenz strange attractor</a>
     It is notable for having chaotic solutions for certain initial conditions.
   </p>
-  <object style="width: 100%; max-height: 10em;" data="images/lorenz.svg" type="image/svg+xml"></object>
+  <object style="width: 100%; max-height: 10em;" alt="Lorenz equations" data="images/lorenz.svg"
+    type="image/svg+xml"></object>
   <p>
     The lorenz system was developed to
     describe a two dimensional fluid layer that is being warmed from below and cooled from above. <b>x</b>
@@ -54,7 +55,7 @@
 <link rel="stylesheet" href="css/uplot.min.css">
 <script src="scripts/uplot.min.js"></script>
 <script src="scripts/ode.js"></script>
-<script>
+<script async>
   var plotElem = document.getElementById("plot")
   var delta = 10
   var beta = 8 / 3
@@ -126,12 +127,12 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.beginPath()
     ctx.moveTo(
-        map(data[1][0], xmin, xmax, 0, canvas.width),
-        map(data[2][0], ymin, ymax, 0, canvas.height))
+      map(data[1][0], xmin, xmax, 0, canvas.width),
+      map(data[2][0], ymin, ymax, 0, canvas.height))
     for (let i = 1; i < data[1].length; i++) {
       const x = map(data[1][i], xmin, xmax, 0, canvas.width)
       const y = map(data[2][i], ymin, ymax, 0, canvas.height)
-      ctx.lineTo(x,y)
+      ctx.lineTo(x, y)
     }
     ctx.stroke()
   }

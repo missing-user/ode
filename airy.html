@@ -21,7 +21,8 @@
     differential
     equation
   </p>
-  <object style="width: 100%; max-height: 1.8em;" data="images/airy.svg" type="image/svg+xml"></object>
+  <object alt="Airy equation" style="width: 100%; max-height: 1.8em;" data="images/airy.svg"
+    type="image/svg+xml"></object>
   <p>
     The airy functions are among other things solutions to the time independent Schrödinger equation for a particle
     inside a
@@ -47,7 +48,7 @@
 <link rel="stylesheet" href="css/uplot.min.css">
 <script src="scripts/uplot.min.js"></script>
 <script src="scripts/ode.js"></script>
-<script>
+<script async>
   var plotElem = document.getElementById("plot")
   var Airy = (t, y) => [y[1], t * y[0]]
   var solver = new ODEsolver(Airy, [0.7, 0.701923076923077], -15, 6)

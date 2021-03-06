@@ -28,7 +28,8 @@
     are used to model a variety of systems like the stock market, orbiting planets or predator prey systems. In this
     article, we will explore a few numerical methods for solving the following first order equation in JavaScript.
   </p>
-  <object style="width: 100%; max-height: 3.2em;" data="images/ode.svg" type="image/svg+xml"></object>
+  <object style="width: 100%; max-height: 3.2em;" alt="ordinary differential equation" data="images/ode.svg"
+    type="image/svg+xml"></object>
   <h2>Numerical methods</h2>
   <p>
     Since many differential equations are hard to solve mathematically, numerical methods have been developed to compute
@@ -40,7 +41,8 @@
     the timestep to get the change in y direction and add it to the previous y value to get the next state.
     <!-- y_{n+1} = y_n + h \cdot f(t,y_n) -->
   </p>
-  <object style="width: 100%; max-height: 1.6em;" data="images/eulerStep.svg" type="image/svg+xml"></object>
+  <object style="width: 100%; max-height: 1.6em;" alt="Euler iteration step" data="images/eulerStep.svg"
+    type="image/svg+xml"></object>
   <p>
     In the following JS implementation of the euler method <b>ts</b> is an array with of
     linearly spaced values ranging from the initial time <b>t_0</b> to the end time <b>t_1</b>. To store the resulting
@@ -67,7 +69,8 @@ for (let i = 0; i &lt; N; i++) {
     regular euler iteration with half step size is performed, and used to evaluate the slope. The next y value is once
     again calculated by moving along the slope by one step.
   </p>
-  <object style="width: 100%; max-height: 6em;" data="images/midpointStep.svg" type="image/svg+xml"></object>
+  <object style="width: 100%; max-height: 6em;" alt="Midpoint iteration step" data="images/midpointStep.svg"
+    type="image/svg+xml"></object>
   <p>Using this, the Order of the error decreases to O(h&sup3;) per step and O(h&sup2;)
     for the total solution. The midpoint method increases stability significantly, while only requiring two evaluations
     of
@@ -88,7 +91,8 @@ for (let i = 0; i &lt; N; i++) {
     accurate enough. Even at large step sizes it retains a high stability, since the error per step only scales with
     O(h^5)
   </p>
-  <object style="width: 100%; max-height: 9em;" data="images/rk4.svg" type="image/svg+xml"></object>
+  <object style="width: 100%; max-height: 9em;" alt="runge kutta equations" data="images/rk4.svg"
+    type="image/svg+xml"></object>
   <p>
     A simple JS implementation for the rk4 method is
   </p>
@@ -118,12 +122,14 @@ for (let i = 0; i &lt; N; i++) {
     the <a href="https://en.wikipedia.org/wiki/Electromagnetic_wave_equation">wave equation</a> we first have to turn
     it into a system of first order ODEs. As an example, let's look at harmonic oscillators.
   </p>
-  <object style="width: 100%; max-height: 1.8em;" data="images/oszi.svg" type="image/svg+xml"></object>
+  <object style="width: 100%; max-height: 1.8em;" alt="harmonic oscillator equation" data="images/oszi.svg"
+    type="image/svg+xml"></object>
   <p>
     To turn this into a system of first order ODEs, let's write the second order derivative <b>y''</b> as a derivative
     of <b>y'</b>. Now we can represent <b>y</b> as a vector consisting of the value and it's first derivative like so
   </p>
-  <object style="width: 100%; max-height: 3.2em;" data="images/firstorder.svg" type="image/svg+xml"></object>
+  <object style="width: 100%; max-height: 3.2em;" alt="system of first order euqations (harmonic oscillator)"
+    data="images/firstorder.svg" type="image/svg+xml"></object>
   <p>
     This reqires some changes in the implementation, since <b>y</b> isn't a number anymore, but rather a list of values.
     To see one possible implementation, either inspect the site or take a look at my
@@ -149,7 +155,7 @@ for (let i = 0; i &lt; N; i++) {
 <link rel="stylesheet" href="css/uplot.min.css">
 <script src="scripts/uplot.min.js"></script>
 <script src="scripts/ode.js"></script>
-<script>
+<script async>
   var plotElem = document.getElementById("plot")
   const DefaultODE = {
     f: (t, y) => [2 * Math.sin(3 * t) + y[0] / 4],
