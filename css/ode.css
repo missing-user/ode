@@ -26,3 +26,18 @@ p {
     flex-flow: column;
     width: 40%;
 }
+
+.homeLink {
+    position: absolute;
+    top: -21px;
+    height: 40px;
+    padding-top: 21px;
+    background-color: #222;
+    color: #fff;
+    border-radius: 9px;
+    transition: .2s ease-in-out;
+}
+
+.homeLink:hover, .homeLink:focus {
+    top: -9px;
+}
