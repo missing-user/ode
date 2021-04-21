@@ -10,5 +10,5 @@ Ordinary differential equations, are equations that involve ordinary derivatives
 ## Demos
 [Lorenz attractor](https://missing-user.github.io/ode/lorenz)
 [Harmonic oscillators](https://missing-user.github.io/ode/oscillator)
-[Airy functions](https://missing-user.github.io/ode/lotkavolterra)
-[Lotka Volterra equations](https://missing-user.github.io/ode/lorenz)
+[Airy functions](https://missing-user.github.io/ode/airy)
+[Lotka Volterra equations](https://missing-user.github.io/ode/lotkavolterra)
