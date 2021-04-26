@@ -26,11 +26,22 @@
   <h1>Lotka Volterra</h1>
   <p>
     The Lotka Volterra equations are a pair of first order differential equations that model predator prey populations.
+    Without a predator, we would expect the prey population to grow exponentially. The increasing prey population means
+    lots of food for our predator population, leading to a positive growth rate. At some point, the predator food demand
+    surpasses the available resources, leading to a rapid fall in prey population. Due to the lack of prey, the
+    predators starve to death and their population decreases as well. This concludes a cycle. The equations can easily
+    be adapted for a model with multiple predators, which will produce to more complex periodic solutions. As you can
+    see, the model is heavily simplified, in reality there are many other limiting factors, like food and space.
+    Nonetheless, the Lotka Volterra model produces useful results that can for example be observed in nature and
+    market economies.
   </p>
   <object style="width: 100%; max-height: 6.7em;" data="images/lotkavolt.svg" type="image/svg+xml">Lotka Volterra
     equations</object>
   <p>
-    The parameters describe natural birth and deathrates of both species. If you want to learn more, here's the
+    The parameters describe natural birth and deathrates of both species. Slight modifications of the Lotka Volterra
+    ODEs can also be used to model how viruses spread when hosts get immunity for some time after an infection. Since
+    immune individuals aren't available as hosts, this can be treated as "prey dying". The longer the immunity lasts,
+    the longer the "birth rate". If you want to learn more, here's the
     <a href="https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations">wikipedia article</a>.
   </p>
 

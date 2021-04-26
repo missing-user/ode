@@ -21,6 +21,10 @@ p {
     text-align: justify;
 }
 
+img {
+    width: 100%;
+}
+
 .sliderscont {
     display: flex;
     flex-flow: column;

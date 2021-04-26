@@ -32,7 +32,7 @@
   <h1>Numerical solutions to Ordinary differential equations</h1>
   <h2>Basics</h2>
   <p>
-    Ordinary differential equations, are equations that involve ordinary derivatives of a function and the function
+    Ordinary differential equations are equations that involve ordinary derivatives of a function and the function
     itself. The order of the differential equation is characterized by the highest order derivative it contains. ODEs
     are used to model a variety of systems like the stock market, orbiting planets or predator prey systems. In this
     article, we will explore a few numerical methods for solving the following first order equation in JavaScript.
@@ -46,21 +46,22 @@
   </p>
   <h3 id="euler">Euler integration</h3>
   <p>
-    The simplest method for numerical integration. At each timestep we calculate the current derivative, multiply it by
-    the timestep to get the change in y direction and add it to the previous y value to get the next state.
+    Euler integration is the simplest method for numerical integration. It is the equivalent of following the slope of a
+    function in tiny steps. At each timestep, we calculate the current derivative, multiply it by the step size <b>h</b>
+    to get the change in y-direction, and add it to the previous y value to arrive at the next state.
     <!-- y_{n+1} = y_n + h \cdot f(t,y_n) -->
   </p>
   <object style="width: 100%; max-height: 1.6em;" data="images/eulerStep.svg" type="image/svg+xml">Euler iteration
     step</object>
   <p>
-    In the following JS implementation of the euler method <b>ts</b> is an array with of
+    In the following JS implementation of the Euler method <b>ts</b> is an array of
     linearly spaced values ranging from the initial time <b>t_0</b> to the end time <b>t_1</b>. To store the resulting
-    values, we create an empty array <b>ys</b> and initialize the first entry to the initial ODE contition <b>y_0</b>.
+    values, we create an empty array <b>ys</b> and initialize the first entry to the initial ODE condition <b>y_0</b>.
   </p>
   <pre><code  class="language-javascript"  contenteditable spellcheck="false">const N = 100, t_0 = 0, t_1 = 1, y_0 = 2
-const h = (t_1 - t_0) / (N)  //step size
+const h = (t_1 - t_0) / N  //time step size
 var ts = Array.from(Array(N+1), (_, k) => k * h + t_0)
-var ys = Array(N+1).fill(0)  //results
+var ys = Array(N+1).fill(0)  //empty array for the results
 ys[0] = y_0  //initial conditions
 
 for (let i = 0; i &lt; N; i++) {
@@ -68,24 +69,24 @@ for (let i = 0; i &lt; N; i++) {
 }</code></pre>
   <p>
     The biggest drawback of the Euler method is, that the error scales with O(h&sup2;) and therefore oftentimes isn't
-    stable. One example of this behaviour can be seen <a href="oscillator">here</a> when the resolution is decreased.
+    stable. An example of the emerging instability can be seen <a href="oscillator">in this demo</a> when the resolution
+    gets decreased.
   </p>
   <h3 id="midpoint">Midpoint method</h3>
   <p>
-    The <a href="https://en.wikipedia.org/wiki/Midpoint_method">midpoint method</a> improves uppon the Euler method, by
+    The <a href="https://en.wikipedia.org/wiki/Midpoint_method">midpoint method</a> improves upon the Euler method, by
     taking the "average slope" between the current location and the next one, instead of the slope at the current
     location. As the name suggests, it determines the derivative at the midpoint between two steps. To do this, a
-    regular euler iteration with half step size is performed, and used to evaluate the slope. The next y value is once
-    again calculated by moving along the slope by one step.
+    regular Euler iteration with half step size is performed and used to evaluate the slope. The next y value is
+    calculated by moving along the slope by a full step from the previous position, but this time using the "midpoint
+    slope".
   </p>
   <object style="width: 100%; max-height: 6em;" data="images/midpointStep.svg" type="image/svg+xml">Midpoint iteration
     step</object>
-  <p>Using this, the Order of the error decreases to O(h&sup3;) per step and O(h&sup2;)
+  <p>Using this method, the Order of the error decreases to O(h&sup3;) per step and O(h&sup2;)
     for the total solution. The midpoint method increases stability significantly, while only requiring two evaluations
-    of
-    the ODE per step. In realtime applications, this is often a good balance between accuracy and performance. Here's
-    how
-    it looks when implemented:
+    of the ODE per step. In realtime applications, this is often a good balance between accuracy and performance. Here's
+    the sample implementation in JavaScript:
   </p>
   <pre><code class="language-javascript" contenteditable spellcheck="false">for (let i = 0; i &lt; resolution; i++) {
   const k1 = f(ts[i], ys[i])
@@ -94,16 +95,20 @@ for (let i = 0; i &lt; N; i++) {
 }</code></pre>
   <h3 id="rk4">Runge Kutta 4th Order </h3>
   <p>
+    Now we're getting into the fun stuff.
     The <a href="https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods">Runge Kutta family</a> of methods takes the
-    concept further, by introducing n evaluations, each more accurate than the previous one, to compute the step. For
-    the vast majority of applications, the fourth order method, also called the standard Runge Kutta Method or RK4, is
-    accurate enough. Even at large step sizes it retains a high stability, since the error per step only scales with
+    concept further, by introducing n evaluations, each more accurate than the previous one, to compute a single step.
+    For the vast majority of applications, the fourth order method also called the standard Runge Kutta Method (RK4),
+    is accurate enough. Even at large step sizes it retains a high stability, since the error per step only scales with
     O(h^5)
   </p>
   <object style="width: 100%; max-height: 9em;" data="images/rk4.svg" type="image/svg+xml">runge kutta
     equations</object>
   <p>
-    A simple JS implementation for the rk4 method is
+    The RK4 method really starts to shine when working with periodic solutions and nonlinear ODEs, since the lower order
+    methods oftentimes diverge in those situation, even when for very low step sizes.
+    <br>
+    A simple JS implementation for the RK4 method could look like this:
   </p>
   <pre><code class="language-javascript" contenteditable spellcheck="false">for (let i = 0; i &lt; resolution; i++) {
   const k1 = f(ts[i], ys[i])
@@ -119,13 +124,23 @@ for (let i = 0; i &lt; N; i++) {
   ys[i + 1] = ys[i] + (k1/6 + k2/3 + k3/3 + k4/6) * h
 }</code></pre>
   <hr>
-  <p>The demo below compares the accuracy of all three methods:
+  <p>The demo below demonstrates how the accuracy of all three methods scales with the step size. Use the slider below
+    to change their resolution!
   </p>
   <label for="resolution_rng">resolution</label>
   <input type="range" oninput="u.setData(calcOde(Math.pow(2,this.value)))" min="2" max="16" name="resolution slider"
     id="resolution_rng">
   <div id="plot"></div>
 
+  <h2>The Limits of Resolution</h2>
+  <p>As you can see, a smaller step size leads to more accurate results. This way of increasing accuracy unfortunately
+    has it's limits. At some point, floating point <a href="https://en.wikipedia.org/wiki/Round-off_error">roundoff
+      errors</a> from computers limited numeric resoltion start outweighing the improvements a smaller step size gives
+    us. To get even higher accuracies, higher order methods have to be used.</p>
+  <a title="Berland, Public domain, via Wikimedia Commons"
+    href="https://commons.wikimedia.org/wiki/File:AbsoluteErrorNumericalDifferentiationExample.png">
+    <img width="1024" alt="AbsoluteErrorNumericalDifferentiationExample"
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/AbsoluteErrorNumericalDifferentiationExample.png/1024px-AbsoluteErrorNumericalDifferentiationExample.png"></a>
   <h2>Moving into higher orders</h2>
   <p>Until now, we have only looked at solving first order differential equations. To solve higher order ODEs like
     the <a href="https://en.wikipedia.org/wiki/Electromagnetic_wave_equation">wave equation</a> we first have to turn
@@ -141,17 +156,18 @@ for (let i = 0; i &lt; N; i++) {
     order euqations (harmonic oscillator)</object>
   <p>
     This reqires some changes in the implementation, since <b>y</b> isn't a number anymore, but rather a list of values.
-    To see one possible implementation, either inspect the site or take a look at my
+    To see one possible implementation, either inspect the site or take a look at the
     <a href="https://github.com/missing-user/missing-user.github.io">GitHub repository</a> for all the demos. There's a
-    bunch of other improvements that could be done, like moving from a fixed resolution to an adaptive step size, like I
-    did <a href="https://missing-user.github.io/solarSystem">here</a> or implementing a
+    bunch of other improvements that could be done, like moving from a fixed resolution to an <a
+      href="https://en.wikipedia.org/wiki/Adaptive_step_size">adaptive step size</a> like I
+    did in this <a href="https://missing-user.github.io/solarSystem">solar system simulation</a> or implementing a
     <a href="https://en.wikipedia.org/wiki/Linear_multistep_method#Adams%E2%80%93Bashforth_methods">multistep
       method</a>, that takes more than one previous point into consideration for the calculation.
   </p>
   <h2>...and beyond</h2>
   <p>Using these methods, you can now solve a variety of problems from physics, mathematics and even biology. Here's a
     list of problems I find particularly interesting and an interactive implementation to go along with each one. If you
-    enjoy these kinds of projects, why don't you check out <a href="https://jurasic-park.de/">my website</a></p>
+    enjoy these kinds of projects, why don't you check out <a href="https://jurasic-park.de/">my website</a>!</p>
   <ul>
     <li><a href="oscillator">Harmonic oscillators</a></li>
     <li><a href="airy">Airy functions</a></li>
