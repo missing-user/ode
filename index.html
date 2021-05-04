@@ -135,7 +135,7 @@ for (let i = 0; i &lt; N; i++) {
   <h2>The Limits of Resolution</h2>
   <p>As you can see, a smaller step size leads to more accurate results. This way of increasing accuracy unfortunately
     has it's limits. At some point, floating point <a href="https://en.wikipedia.org/wiki/Round-off_error">roundoff
-      errors</a> from computers limited numeric resoltion start outweighing the improvements a smaller step size gives
+      errors</a> from computers limited numeric resolution start outweighing the improvements a smaller step size gives
     us. To get even higher accuracies, higher order methods have to be used.</p>
   <a title="Berland, Public domain, via Wikimedia Commons"
     href="https://commons.wikimedia.org/wiki/File:AbsoluteErrorNumericalDifferentiationExample.png">
@@ -155,7 +155,7 @@ for (let i = 0; i &lt; N; i++) {
   <object style="width: 100%; max-height: 3.2em;" data="images/firstorder.svg" type="image/svg+xml">system of first
     order euqations (harmonic oscillator)</object>
   <p>
-    This reqires some changes in the implementation, since <b>y</b> isn't a number anymore, but rather a list of values.
+    This reqires some changes in the implementation, since <b>y</b> isn't a number anymore, but rather a vector.
     To see one possible implementation, either inspect the site or take a look at the
     <a href="https://github.com/missing-user/missing-user.github.io">GitHub repository</a> for all the demos. There's a
     bunch of other improvements that could be done, like moving from a fixed resolution to an <a
