@@ -119,7 +119,7 @@ for (let i = 0; i &lt; N; i++) {
   const s2 = ys[i] + k2 * h/2
   const k3 = f(ts[i] + h/2, s2) 
 
-  const s3 = ys[i] + k2 * h
+  const s3 = ys[i] + k3 * h
   const k4 = f(ts[i] + h, s3) // f(t + h, y_n + k3*h)
   ys[i + 1] = ys[i] + (k1/6 + k2/3 + k3/3 + k4/6) * h
 }</code></pre>
@@ -173,6 +173,7 @@ for (let i = 0; i &lt; N; i++) {
     <li><a href="airy">Airy functions</a></li>
     <li><a href="lotkavolterra">Lotka Volterra equations</a></li>
     <li><a href="lorenz">Lorenz Attractors</a></li>
+    <li><a href="clifford">Clifford Attractors</a></li>
   </ul>
 </body>
 <link href="css/prism.css" rel="stylesheet" type="text/css" />

@@ -71,7 +71,9 @@
 
   var oderes = []
   function LorenzODE(t, y) {
-    return [-delta * (y[0] - y[1]), radius * y[0] - y[1] - y[0] * y[2], -beta * y[2] + y[0] * y[1]]
+    return [-delta * (y[0] - y[1]), 
+      radius * y[0] - y[1] - y[0] * y[2], 
+      -beta * y[2] + y[0] * y[1]]
   }
   solver = new ODEsolver(LorenzODE, [0, 1, 0.5], 0, 20)
 
@@ -83,7 +85,7 @@
     solver.y0 = [getSliderValue("gammaSlid"), 1, 0.5]
     beta = getSliderValue("betaSlid")
     delta = getSliderValue("deltaSlid")
-    solver.f = (t, y) => [-delta * (y[0] - y[1]), radius * y[0] - y[1] - y[0] * y[2], -beta * y[2] + y[0] * y[1]]
+    solver.f = LorenzODE
     iterPerFrame = Math.pow(2, getSliderValue("resSlid"))
     solver.t0 = 0
     solver.t1 = 20

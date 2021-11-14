@@ -36,7 +36,7 @@ class ODEsolver {
             const s2 = ys[i].map((y, j) => y + k2[j] * h / 2)
             const k3 = this.ode(ts[i] + h / 2, s2) // f(t + h/2, y_n + k2*h/2)
 
-            const s3 = ys[i].map((y, j) => y + k2[j] * h)
+            const s3 = ys[i].map((y, j) => y + k3[j] * h)
             const k4 = this.ode(ts[i] + h, s3) // f(t + h, y_n + k3*h)
             ys[i + 1] = ys[i].map((x, j) => x + (k1[j] / 6 + k2[j] / 3 + k3[j] / 3 + k4[j] / 6) * h) //y_n+1 = y_n + (k1 +2*k2 + 2*k3 +k4)/6 *h
         }
