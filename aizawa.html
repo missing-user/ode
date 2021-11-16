@@ -5,13 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.gstatic.com">
-  <title>Lorenz Attractor</title>
+  <title>Aizawa Attractor</title>
   <meta name="description" content="Numerical simulations of a Lorenz Attractor in JavaScript">
   <link rel="stylesheet" href="css/ode.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600&display=swap">
-  <link rel="preload" href="css/uplot.min.css" as="style">
   <link rel="preload" href="scripts/ode.js" as="script">
-  <link rel="preload" href="scripts/uplot.min.js" as="script">
 </head>
 
 <body> <a class="homeLink" href="./"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"
@@ -23,97 +21,71 @@
         d="M23 19C23 21.2091 21.2091 23 19 23H5C2.79086 23 1 21.2091 1 19V5C1 2.79086 2.79086 1 5 1H19C21.2091 1 23 2.79086 23 5V19ZM19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21Z"
         fill="currentColor" />
     </svg></a>
-  <h1>Lorenz Attractor</h1>
-  <p>This is a <a href="https://en.wikipedia.org/wiki/Lorenz_system">Lorenz strange attractor</a>
-    It is notable for having chaotic solutions for certain initial conditions.
-  </p>
-  <object style="width: 100%; max-height: 10em;" data="images/lorenz.svg" type="image/svg+xml">Lorenz equations</object>
-  <p>
-    The lorenz system was developed to
-    describe a two dimensional fluid layer that is being warmed from below and cooled from above. <b>x</b>
-    is proportional to the rate of convection, <b>y</b> to the horizontal temperature variation, and
-    <b>z</b> to the vertical temperature variation. This demo shows a xy projection of the result and all three
-    coordinates in the time plot below.
-  </p>
+  <h1>Aizawa Attractor</h1>
+  <p>A visualization of the Aizawa Attractor. The third dimension is represented by color, with lighter colors indicating a  higher value.</p>
 
   <div style="display: flex; justify-content: space-between;">
     <div class="sliderscont">
-      <input type="range" oninput="updateInitialValues()" min="1" max="4" value="3" step="0.1" name="resolution slider"
+      <input type="range" oninput="updateInitialValues()" value="4" min="1" max="4" step="0.1" name="resolution slider"
         id="resSlid">
       <label for="resSlid">resolution</label>
-      <input type="range" oninput="updateInitialValues()" value="8 / 3" min="0" max="3" step="any" name="amplitude"
+      <input type="range" oninput="updateInitialValues()" value=".7" min="0" max="3" step="any" 
         id="betaSlid">
       <label for="betaSlid">beta</label>
     </div>
 
     <div class="sliderscont">
-      <input type="range" oninput="updateInitialValues()" value="5" min="0.1" max="10" step="any"
-        name="resonance slider" id="deltaSlid">
+      <input type="range" oninput="updateInitialValues()" value="3.5" min="-5" max="5" step="any"
+         id="deltaSlid">
       <label for="deltaSlid">delta</label>
-      <input type="range" oninput="updateInitialValues()" value="1" min="-20" max="20" step="any"
-        name="dampening slider" id="gammaSlid">
-      <label for="gammaSlid">initial position</label>
+      <input type="range" oninput="updateInitialValues()" value=".9" min="-1" max="1" step="any"
+         id="alphaSlid">
+      <label for="alphaSlid">alpha</label>
     </div>
   </div>
 
   <canvas style="width: 100%;" id="canvas"></canvas>
   <div id="plot"></div>
 </body>
-<link rel="stylesheet" href="css/uplot.min.css">
-<script src="scripts/uplot.min.js"></script>
 <script src="scripts/ode.js"></script>
 <script async>
   var plotElem = document.getElementById("plot")
-  var delta = 10
-  var beta = 8 / 3
-  var radius = 28
-  var iterPerFrame = 4
+  var alpha = .9
+  var beta = .7
+  var delta = 3.5
+  var eta = .25
+  var f = .1
+  var c = .6
+  var iterPerFrame = 10
 
   var oderes = []
-  function LorenzODE(t, y) {
-    return [-delta * (y[0] - y[1]), 
-      radius * y[0] - y[1] - y[0] * y[2], 
-      -beta * y[2] + y[0] * y[1]]
+  function AizawaODE(t, y) {
+  //dx = (z-b) * x - d*y
+  //dy = d * x + (z-b) * y
+  //dz = c + a*z - z3 /3 - x2 + f * z * x3
+
+    const dx = (y[2]-beta) * y[0] - delta*y[1];
+    const dy = delta * y[0] + (y[2]-beta) * y[1];
+    const dz = c + alpha*y[2] - Math.pow(y[2],3)/3 - y[0]*y[0] + f * y[2] * Math.pow(y[0], 3);
+    return [dx,dy,dz];
   }
-  solver = new ODEsolver(LorenzODE, [0, 1, 0.5], 0, 20)
+  solver = new ODEsolver(AizawaODE, [.1, 0, 0], 0, 10)
 
   function getSliderValue(id) {
     return parseFloat(document.getElementById(id).value)
   }
 
   function updateInitialValues() {
-    solver.y0 = [getSliderValue("gammaSlid"), 1, 0.5]
+    alpha = getSliderValue("alphaSlid")
     beta = getSliderValue("betaSlid")
     delta = getSliderValue("deltaSlid")
-    solver.f = LorenzODE
+
+    solver.f = AizawaODE
     iterPerFrame = Math.pow(2, getSliderValue("resSlid"))
     solver.t0 = 0
-    solver.t1 = 20
-    oderes = solver.rk4(~~iterPerFrame * 120) //calculate a 20s preview at high res 
-  }
-
-  const opts = {
-    width: 900,
-    height: 900,
-    title: "Lorenz attractor",
-    scales: {
-      x: { time: false },
-    },
-    series: [
-      { label: "t" },
-      {
-        label: "x",
-        stroke: "#D32F2F",
-      },
-      {
-        label: "y",
-        stroke: "#ff8000",
-      },
-      {
-        label: "z",
-        stroke: "#12B02F",
-      },
-    ],
+    solver.t1 = 10
+    solver.y0 = [.1, 0, 0]
+    oderes = solver.rk4(1000)
   }
 
   var canvas = document.getElementById("canvas")
@@ -136,6 +108,8 @@
     const zmin = Math.min(...data[3])
     const zmax = Math.max(...data[3])
     ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+
       //"3d" viz using color
       for (let i = 1; i < data[1].length; i++) {
       
@@ -147,18 +121,17 @@
       const x = map(data[1][i], xmin, xmax, 0, canvas.width)
       const y = map(data[2][i], ymin, ymax, 0, canvas.height)
       ctx.lineTo(x, y)
-
+      
       const heightValue =map(data[3][i], zmin, zmax, 70, 0)
       ctx.strokeStyle = `hsl(210,100%,${~~heightValue}%)`;
-      ctx.stroke()}
+      ctx.stroke()
+    }
   }
 
   updateInitialValues()
-  var u = new uPlot(opts, data, plotElem)
 
   function updateCanvasProperties() {
     var ptr = window.devicePixelRatio | 1
-    u.setSize({ width: plotElem.clientWidth, height: plotElem.clientWidth });
     canvas.height = plotElem.clientWidth * ptr
     canvas.width = plotElem.clientWidth * ptr
   }
@@ -167,8 +140,8 @@
   window.addEventListener("resize", updateCanvasProperties)
   drawOde()
 
-  const tmax = 40
-  const tstep = 0.1
+  const tmax = 60
+  const tstep = .1
   function step(timestamp) {
     solver.y0 = oderes.ys[oderes.ys.length - 1]
     solver.t0 = solver.t1
@@ -184,8 +157,8 @@
       oderes.ys.splice(0, tmpres.ts.length)
     }
     drawOde()
-    u.setData(data)
-    window.requestAnimationFrame(step)
+    if(!solver.y0.includes(NaN))
+      window.requestAnimationFrame(step)
   }
 
   window.requestAnimationFrame(step)

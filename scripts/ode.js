@@ -4,6 +4,9 @@ class ODEsolver {
         this.y0 = y0
         this.t0 = t0
         this.t1 = t1
+
+        if(isNaN(this.t0))
+            console.warn("invalid starting time");
     }
 
     euler(resolution) {
@@ -26,6 +29,9 @@ class ODEsolver {
         var ts = Array.from(Array(resolution + 1), (_, k) => k * h + this.t0) //time series datapoints
         var ys = Array.from(Array(resolution + 1), () => Array(this.y0.length).fill(0))
         ys[0] = this.y0
+        
+        if(this.y0.includes(NaN))
+            console.warn("y0 contains invalid starting value", this.y0)
 
         for (let i = 0; i < resolution; i++) {
             const k1 = this.ode(ts[i], ys[i]) // f(t, y_n)
