@@ -71,9 +71,9 @@
 
   var oderes = []
   function LorenzODE(t, y) {
-    return [-delta * (y[0] - y[1]), 
-      radius * y[0] - y[1] - y[0] * y[2], 
-      -beta * y[2] + y[0] * y[1]]
+    return [-delta * (y[0] - y[1]),
+    radius * y[0] - y[1] - y[0] * y[2],
+    -beta * y[2] + y[0] * y[1]]
   }
   solver = new ODEsolver(LorenzODE, [0, 1, 0.5], 0, 20)
 
@@ -136,21 +136,22 @@
     const zmin = Math.min(...data[3])
     const zmax = Math.max(...data[3])
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-      //"3d" viz using color
-      for (let i = 1; i < data[1].length; i++) {
-      
-      ctx.beginPath()
-      const x0 = map(data[1][i-1], xmin, xmax, 0, canvas.width)
-      const y0 = map(data[2][i-1], ymin, ymax, 0, canvas.height)
-      ctx.moveTo(x0, y0)
+    const x0 = map(data[1][0], xmin, xmax, 0, canvas.width)
+    const y0 = map(data[2][0], ymin, ymax, 0, canvas.height)
+    ctx.moveTo(x0, y0)
+    ctx.beginPath()
+
+    for (let i = 1; i < data[1].length; i++) {
+
 
       const x = map(data[1][i], xmin, xmax, 0, canvas.width)
       const y = map(data[2][i], ymin, ymax, 0, canvas.height)
       ctx.lineTo(x, y)
 
-      const heightValue =map(data[3][i], zmin, zmax, 70, 0)
-      ctx.strokeStyle = `hsl(210,100%,${~~heightValue}%)`;
-      ctx.stroke()}
+      //const heightValue =map(data[3][i], zmin, zmax, 70, 0)
+      //ctx.strokeStyle = `hsl(210,100%,${~~heightValue}%)`;
+    }
+    ctx.stroke()
   }
 
   updateInitialValues()
