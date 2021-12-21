@@ -22,27 +22,31 @@
         fill="currentColor" />
     </svg></a>
   <h1>Aizawa Attractor</h1>
-  <p>A visualization of the Aizawa Attractor. The third dimension is represented by color, with lighter colors indicating a  higher value.</p>
+  <p>A visualization of the Aizawa Attractor. The third dimension is represented by color, with lighter colors
+    indicating a higher value.</p>
 
   <div style="display: flex; justify-content: space-between;">
     <div class="sliderscont">
       <input type="range" oninput="updateInitialValues()" value="4" min="1" max="4" step="0.1" name="resolution slider"
         id="resSlid">
       <label for="resSlid">resolution</label>
-      <input type="range" oninput="updateInitialValues()" value=".7" min="0" max="3" step="any" 
-        id="betaSlid">
+      <input type="range" oninput="updateInitialValues()" value=".7" min="0" max="3" step="any" id="betaSlid">
       <label for="betaSlid">beta</label>
     </div>
 
     <div class="sliderscont">
-      <input type="range" oninput="updateInitialValues()" value="3.5" min="-5" max="5" step="any"
-         id="deltaSlid">
+      <input type="range" oninput="updateInitialValues()" value="3.5" min="-5" max="5" step="any" id="deltaSlid">
       <label for="deltaSlid">delta</label>
-      <input type="range" oninput="updateInitialValues()" value=".9" min="-1" max="1" step="any"
-         id="alphaSlid">
+      <input type="range" oninput="updateInitialValues()" value=".9" min="-1" max="1" step="any" id="alphaSlid">
       <label for="alphaSlid">alpha</label>
     </div>
   </div>
+
+  <noscript>
+    <p>
+      Please enable JavaScript for a live demo. I promise it's not for tracking.
+    </p>
+  </noscript>
 
   <canvas style="width: 100%;" id="canvas"></canvas>
   <div id="plot"></div>
@@ -60,14 +64,14 @@
 
   var oderes = []
   function AizawaODE(t, y) {
-  //dx = (z-b) * x - d*y
-  //dy = d * x + (z-b) * y
-  //dz = c + a*z - z3 /3 - x2 + f * z * x3
+    //dx = (z-b) * x - d*y
+    //dy = d * x + (z-b) * y
+    //dz = c + a*z - z3 /3 - x2 + f * z * x3
 
-    const dx = (y[2]-beta) * y[0] - delta*y[1];
-    const dy = delta * y[0] + (y[2]-beta) * y[1];
-    const dz = c + alpha*y[2] - Math.pow(y[2],3)/3 - y[0]*y[0] + f * y[2] * Math.pow(y[0], 3);
-    return [dx,dy,dz];
+    const dx = (y[2] - beta) * y[0] - delta * y[1];
+    const dy = delta * y[0] + (y[2] - beta) * y[1];
+    const dz = c + alpha * y[2] - Math.pow(y[2], 3) / 3 - y[0] * y[0] + f * y[2] * Math.pow(y[0], 3);
+    return [dx, dy, dz];
   }
   solver = new ODEsolver(AizawaODE, [.1, 0, 0], 0, 10)
 
@@ -110,19 +114,19 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
 
-      //"3d" viz using color
-      for (let i = 1; i < data[1].length; i++) {
-      
+    //"3d" viz using color
+    for (let i = 1; i < data[1].length; i++) {
+
       ctx.beginPath()
-      const x0 = map(data[1][i-1], xmin, xmax, 0, canvas.width)
-      const y0 = map(data[2][i-1], ymin, ymax, 0, canvas.height)
+      const x0 = map(data[1][i - 1], xmin, xmax, 0, canvas.width)
+      const y0 = map(data[2][i - 1], ymin, ymax, 0, canvas.height)
       ctx.moveTo(x0, y0)
 
       const x = map(data[1][i], xmin, xmax, 0, canvas.width)
       const y = map(data[2][i], ymin, ymax, 0, canvas.height)
       ctx.lineTo(x, y)
-      
-      const heightValue =map(data[3][i], zmin, zmax, 70, 0)
+
+      const heightValue = map(data[3][i], zmin, zmax, 70, 0)
       ctx.strokeStyle = `hsl(210,100%,${~~heightValue}%)`;
       ctx.stroke()
     }
@@ -157,7 +161,7 @@
       oderes.ys.splice(0, tmpres.ts.length)
     }
     drawOde()
-    if(!solver.y0.includes(NaN))
+    if (!solver.y0.includes(NaN))
       window.requestAnimationFrame(step)
   }
 

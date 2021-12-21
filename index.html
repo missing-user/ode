@@ -126,6 +126,10 @@ for (let i = 0; i &lt; N; i++) {
   <hr>
   <p>The demo below demonstrates how the accuracy of all three methods scales with the step size. Use the slider below
     to change their resolution!
+    <noscript>
+      <br>
+      Please enable JavaScript to see the demo. I promise it's not for tracking.
+    </noscript>
   </p>
   <label for="resolution_rng">resolution</label>
   <input type="range" oninput="u.setData(calcOde(Math.pow(2,this.value)))" min="2" max="16" name="resolution slider"
@@ -233,6 +237,6 @@ for (let i = 0; i &lt; N; i++) {
   })
 </script>
 
-<script>if(!!localStorage.getItem("_dev")&&!sessionStorage.getItem("_swa")&&document.referrer.indexOf(location.protocol+"//"+location.host)!== 0){fetch("https://counter.dev/track?"+new URLSearchParams({referrer:document.referrer,screen:screen.width+"x"+screen.height,user:"missing-user",utcoffset:"1"}))};sessionStorage.setItem("_swa","1");</script>
+<script>if (!!localStorage.getItem("_dev") && !sessionStorage.getItem("_swa") && document.referrer.indexOf(location.protocol + "//" + location.host) !== 0) { fetch("https://counter.dev/track?" + new URLSearchParams({ referrer: document.referrer, screen: screen.width + "x" + screen.height, user: "missing-user", utcoffset: "1" })) }; sessionStorage.setItem("_swa", "1");</script>
 
 </html>
